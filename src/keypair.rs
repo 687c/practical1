@@ -1,9 +1,8 @@
 use anyhow::{Ok, Result};
 use secp256k1::{rand::rngs::OsRng, PublicKey, SecretKey};
 use std::{
-    fmt::format,
     fs::File,
-    io::{self, Read, Write},
+    io::{Read, Write},
     path::Path,
 };
 

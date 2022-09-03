@@ -7,4 +7,6 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.63"
-secp256k1 = { version = "0.24.0", features = ["rand-std"] }
+base64ct = { version = "1.5.2", features = ["alloc"] }
+secp256k1 = { version = "0.24.0", features = ["rand-std", "bitcoin_hashes"] }
+sha2 = "0.10.3"

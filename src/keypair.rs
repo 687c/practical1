@@ -1,5 +1,5 @@
 use anyhow::{Ok, Result};
-use secp256k1::{rand::rngs::OsRng, Error, PublicKey, Secp256k1, SecretKey};
+use secp256k1::{rand::rngs::OsRng, PublicKey, Secp256k1, SecretKey};
 use std::{
     fs::File,
     io::{Read, Write},
@@ -62,7 +62,7 @@ impl KeyPair {
         let mut private_key = String::new();
 
         for line in lines {
-            //if field private key not found panic and stop 
+            //if field private key not found panic and stop
             if !line.contains("private key") {
                 panic!("private key not found");
             }

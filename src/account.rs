@@ -68,9 +68,12 @@ impl Account {
         Ok(())
     }
 
-    pub fn airdrop_balance(&mut self, input: u64) {
+    pub fn airdrop_coins(&mut self, input: u64) {
         self.balance = input;
-        println!("\nYou created {:#?} money from nowhere\n", self);
+        println!(
+            "\n{} coins airdropped to account {}\n",
+            input, self.account_id
+        );
     }
 
     #[allow(dead_code)]
@@ -137,6 +140,10 @@ enum AccountErrors {
 
 #[cfg(test)]
 mod tests {
+    use sha2::digest::crypto_common::Key;
+
+    use crate::keypair::KeyPair;
+
     use super::Account;
 
     #[test]
@@ -145,9 +152,48 @@ mod tests {
 
         assert!(account.account_id.starts_with("88"));
 
-        assert_eq!(account.account_id.len(), 41);
-        
+        //acc_id length
+        assert_eq!(account.account_id.len(), 46);
+        assert_eq!(account.balance, 0);
+    }
 
-        println!("the gen acc {:#?}", account.account_id.len());
+    #[test]
+    fn test_airdrop_coins() {
+        let mut acc1 = Account::gen_account();
+
+        acc1.airdrop_coins(230);
+        assert_eq!(acc1.get_balance(), 230);
+        assert_eq!(acc1.balance, 230);
+    }
+
+    #[test]
+    fn test_transfer_funds() {
+        let mut acc1 = Account::gen_account();
+        let mut acc2 = Account::gen_account();
+
+        acc1.airdrop_coins(230);
+        assert_eq!(acc1.balance, 230);
+
+        acc1.create_payment_op(30, &mut acc2).unwrap();
+        assert_eq!(acc1.balance, 200);
+        assert_eq!(acc2.get_balance(), 30);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_transfer_insufficient_funds() {
+        let mut acc = Account::gen_account();
+        let mut acc2 = Account::gen_account();
+
+        //should panic and test should pass
+        acc2.create_payment_op(23423, &mut acc).unwrap();
+    }
+
+    #[test]
+    #[ignore = "Test when generated keys are saved permanently"]
+    fn test_sign_data() {
+        let acc = Account::gen_account();
+
+        let res = acc.sign_data("hello world!".to_string());
     }
 }

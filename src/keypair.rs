@@ -6,7 +6,7 @@ use std::{
     path::Path,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Hash,PartialEq)]
 pub struct KeyPair {
     pub public_key: PublicKey,
     pub private_key: SecretKey, //private property

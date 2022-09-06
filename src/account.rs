@@ -1,21 +1,22 @@
-use anyhow::{anyhow, bail, Error, Ok /* Result */};
+use anyhow::{Error, Ok /* Result */};
 use base64ct::{Base64, Encoding};
 use core::panic;
-use std::{
-    fs::File,
-    io::{Read, Write},
-    path::{Path, PathBuf},
-};
+// use std::{
+//     fs::File,
+//     io::{Read},
+//     path::{Path, PathBuf},
+// };
 // use secp256k1::PublicKey;
+// use thiserror::Error;
 use sha2::{Digest, Sha256};
-use thiserror::Error;
 
 use crate::{keypair::KeyPair, signature::Signature};
 
 #[derive(Debug)]
 pub struct Account {
     pub account_id: String,
-    pub wallet: KeyPair,
+    // pub wallet: KeyPair,
+    pub wallet: Vec<KeyPair>,
     pub balance: u64,
 }
 
@@ -30,7 +31,7 @@ impl Account {
         let account_id = format!("88{encoded_hash}");
 
         let balance = 0;
-        let wallet = key_pair;
+        let wallet = vec![key_pair];
 
         Self {
             account_id,
@@ -39,34 +40,36 @@ impl Account {
         }
     }
 
-    pub fn add_key_pair_to_wallet(
-        account: &Self, /* path: Option<PathBuf >*/
-    ) -> std::result::Result<(), Error> {
-        /* TODO
-         * what if user wants to have multiple accounts - then wallet should be a Vector of type KeyPair
-         * or a custom Wallet struct
-         */
-        //if user already has an account ask whether he wants to create a new one
-        //or continue with the old one
-
-        let private_key = account.wallet.private_key.secret_bytes();
-        let formatted_private = format!("private key -> {:?}\n", private_key);
-        let balance_hash = Sha256::digest(account.balance.to_be_bytes());
-        let formatted_balance = format!("balance -> {:?}", balance_hash);
-        // println!("balance hash {:?}", balance_hash);
-
-        //Writing the PK and balance to the file
-        let path = Path::new("account.txt");
-        // if path.exists() && path.metadata().unwrap().len() > 0 {
-        //     println!("you already have an account");
-        //     return Ok(());
-        // }
-        let mut file = File::create(path).unwrap();
-        file.write(formatted_private.as_bytes()).unwrap();
-        file.write(formatted_balance.as_bytes()).unwrap();
-
-        Ok(())
+    pub fn add_key_pair_to_wallet(&mut self, key_pair: KeyPair) {
+        self.wallet.push(key_pair);
     }
+
+    // pub fn save_acc_to_file(
+    //     account: &Self, /* path: Option<PathBuf >*/
+    // ) -> std::result::Result<(), Error> {
+    //     /* TODO
+    //      * what if user wants to have multiple accounts - then wallet should be a Vector of type KeyPair
+    //      * or a custom Wallet struct
+    //      */
+    //     //if user already has an account ask whether he wants to create a new one
+    //     //or continue with the old one
+
+    //     let private_key = account.wallet.private_key.secret_bytes();
+    //     let formatted_private = format!("private key -> {:?}\n", private_key);
+    //     let balance = account.balance.to_be_bytes();
+
+    //     //Writing the PK and balance to the file
+    //     let path = Path::new("account.txt");
+    //     // if path.exists() && path.metadata().unwrap().len() > 0 {
+    //     //     println!("you already have an account");
+    //     //     return Ok(());
+    //     // }
+    //     let mut file = File::create(path).unwrap();
+    //     file.write(formatted_private.as_bytes()).unwrap();
+    //     file.write(&balance).unwrap();
+
+    //     Ok(())
+    // }
 
     pub fn airdrop_coins(&mut self, input: u64) {
         self.balance = input;
@@ -99,8 +102,8 @@ impl Account {
         //add to receiver amt transferred
         //check if acc address is valid
         if !transfer_to_account.account_id.starts_with("88") {
-            // panic!("Invalid account. Accounts must start with 88")
-            bail!(AccountErrors::InvalidAccount);
+            panic!("Invalid account. Accounts must start with 88")
+            // bail!(AccountErrors::InvalidAccount);
         }
 
         //deduct from myself amt transferred
@@ -123,27 +126,24 @@ impl Account {
         println!("user's balance is -> {}", self.balance);
     }
 
-    pub fn sign_data(&self, msg: String /* index: u64 */) -> Signature {
-        let pk = self.wallet.private_key;
+    pub fn sign_data(&self, msg: String, index: usize) -> Signature {
+        let pk = self.wallet[index].private_key;
         let sig = Signature::sign_data(&pk, msg).unwrap();
         sig
     }
 }
 
-#[derive(Error, Debug)]
-enum AccountErrors {
-    #[error("Not enough funds to create payment")]
-    InsufficientFunds,
-    #[error("Accounts on this blockchain start with 88")]
-    InvalidAccount,
-}
+// #[derive(Error, Debug)]
+// enum AccountErrors {
+//     #[error("Not enough funds to create payment")]
+//     InsufficientFunds,
+//     #[error("Accounts on this blockchain start with 88")]
+//     InvalidAccount,
+// }
 
 #[cfg(test)]
 mod tests {
-    use sha2::digest::crypto_common::Key;
-
     use crate::keypair::KeyPair;
-
     use super::Account;
 
     #[test]
@@ -155,6 +155,16 @@ mod tests {
         //acc_id length
         assert_eq!(account.account_id.len(), 46);
         assert_eq!(account.balance, 0);
+    }
+
+    #[test]
+    fn add_keys_to_wallet() {
+        let mut acc = Account::gen_account();
+
+        let new_key_pair = KeyPair::new_key_pair().unwrap();
+        acc.add_key_pair_to_wallet(new_key_pair);
+
+        assert_eq!(acc.wallet.len(), 2);
     }
 
     #[test]
@@ -194,6 +204,7 @@ mod tests {
     fn test_sign_data() {
         let acc = Account::gen_account();
 
-        let res = acc.sign_data("hello world!".to_string());
+        let res = acc.sign_data("hello world!".to_string(), 0);
+        println!("\n{:#?}", res);
     }
 }

@@ -2,13 +2,13 @@ use anyhow::{Ok, Result};
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 
-use crate::tx::{self, Transaction};
+use crate::tx::Transaction;
 
-#[derive(Debug, Hash, PartialEq)]
-struct Block {
-    block_id: String,
-    prev_hash: String,
-    set_of_tx: Vec<Transaction>,
+#[derive(Clone, Debug, Hash, PartialEq)]
+pub struct Block {
+    pub block_id: String,
+    pub prev_hash: String,
+    pub set_of_tx: Vec<Transaction>,
 }
 
 impl Block {
@@ -55,7 +55,8 @@ mod tests {
         let tx = Transaction::create_tx(set_of_ops);
 
         let set_of_tx = vec![tx];
-        let genesis_hash = Block::create_hash(&"00000000000000000000");
+        // let genesis_hash = Block::create_hash(&"00000000000000000000");
+        let genesis_hash = "00000000000000000000";
 
         //test if block id is calculated properly
         //we can guess what the id of the block will be from the gen hash

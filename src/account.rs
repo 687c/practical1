@@ -12,12 +12,12 @@ use sha2::{Digest, Sha256};
 
 use crate::{keypair::KeyPair, signature::Signature};
 
-#[derive(Debug)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Account {
     pub account_id: String,
     // pub wallet: KeyPair,
     pub wallet: Vec<KeyPair>,
-    pub balance: u64,
+    pub balance: u128,
 }
 
 impl Account {
@@ -71,7 +71,7 @@ impl Account {
     //     Ok(())
     // }
 
-    pub fn airdrop_coins(&mut self, input: u64) {
+    pub fn airdrop_coins(&mut self, input: u128) {
         self.balance = input;
         println!(
             "\n{} coins airdropped to account {}\n",
@@ -80,14 +80,14 @@ impl Account {
     }
 
     #[allow(dead_code)]
-    pub fn update_balance(/* &mut self, input: u64 */) {
-        // self.balance = input;
+    pub fn update_balance(&mut self, input: u128) {
+        self.balance = input;
         // println!("\nYou created {:#?} money from nowhere\n", self);
     }
 
     pub fn create_payment_op(
         &mut self,
-        transfer_amt: u64,
+        transfer_amt: u128,
         transfer_to_account: &mut Self,
     ) -> Result<(), Error> {
         //if there is a discrepancy when updating in address do not update the balance
@@ -118,7 +118,7 @@ impl Account {
         Ok(())
     }
 
-    pub fn get_balance(&self) -> u64 {
+    pub fn get_balance(&self) -> u128 {
         self.balance
     }
 
@@ -143,8 +143,8 @@ impl Account {
 
 #[cfg(test)]
 mod tests {
-    use crate::keypair::KeyPair;
     use super::Account;
+    use crate::keypair::KeyPair;
 
     #[test]
     fn account_init() {

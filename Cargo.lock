@@ -109,6 +109,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "base64ct",
+ "rand",
  "secp256k1",
  "sha2",
  "thiserror",

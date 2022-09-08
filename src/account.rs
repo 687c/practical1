@@ -1,21 +1,12 @@
 use anyhow::{Error, Ok /* Result */};
 use base64ct::{Base64, Encoding};
-use core::panic;
-// use std::{
-//     fs::File,
-//     io::{Read},
-//     path::{Path, PathBuf},
-// };
-// use secp256k1::PublicKey;
-// use thiserror::Error;
 use sha2::{Digest, Sha256};
 
-use crate::{keypair::KeyPair, signature::Signature};
+use crate::{KeyPair, Signature};
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct Account {
     pub account_id: String,
-    // pub wallet: KeyPair,
     pub wallet: Vec<KeyPair>,
     pub balance: u128,
 }
@@ -82,7 +73,6 @@ impl Account {
     #[allow(dead_code)]
     pub fn update_balance(&mut self, input: u128) {
         self.balance = input;
-        // println!("\nYou created {:#?} money from nowhere\n", self);
     }
 
     pub fn create_payment_op(
@@ -103,7 +93,6 @@ impl Account {
         //check if acc address is valid
         if !transfer_to_account.account_id.starts_with("88") {
             panic!("Invalid account. Accounts must start with 88")
-            // bail!(AccountErrors::InvalidAccount);
         }
 
         //deduct from myself amt transferred
@@ -133,18 +122,10 @@ impl Account {
     }
 }
 
-// #[derive(Error, Debug)]
-// enum AccountErrors {
-//     #[error("Not enough funds to create payment")]
-//     InsufficientFunds,
-//     #[error("Accounts on this blockchain start with 88")]
-//     InvalidAccount,
-// }
-
 #[cfg(test)]
 mod tests {
     use super::Account;
-    use crate::keypair::KeyPair;
+    use crate::KeyPair;
 
     #[test]
     fn account_init() {

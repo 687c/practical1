@@ -1,12 +1,12 @@
 use crate::{account::Account, signature::Signature};
 use anyhow::{Ok, Result};
 
-#[derive(Debug)]
+#[derive(Clone, Debug, Hash, PartialEq)]
 pub struct Operation {
     sender: Account,
     receiver: Account,
-    amount: u64,
-    signature: Signature,
+    amount: u128,
+    pub signature: Signature,
     comment: String,
 }
 
@@ -14,7 +14,7 @@ impl Operation {
     pub fn create_operation(
         sender: Account,
         receiver: Account,
-        amount: u64,
+        amount: u128,
         signature: Signature,
         comment: String,
     ) -> Self {
@@ -27,16 +27,20 @@ impl Operation {
         }
     }
 
-    pub fn verify_operation(operation: Operation) -> Result<bool> {
+    pub fn verify_operation(self /*, operation: Operation */) -> Result<bool> {
         //check the funds ||
-        if operation.sender.balance == 0 || operation.sender.balance < operation.amount {
+        if self.sender.balance < self.amount {
             panic!("Insufficient funds")
         }
 
         //check the sig
-        let sig = operation.signature;
-        let public_key = operation.sender.wallet[0].public_key;
-        let msg = operation.comment;
+        // let sig = operation.signature;
+        // let public_key = operation.sender.wallet[0].public_key;
+        // let msg = operation.comment;
+
+        let sig = self.signature;
+        let public_key = self.sender.wallet[0].public_key;
+        let msg = self.comment;
         if !Signature::verify_sig(sig, public_key, msg).unwrap() {
             panic!("signature verification failed")
         }
@@ -60,7 +64,8 @@ mod tests {
         let sig = acc1.sign_data(comment.to_string(), 0);
 
         let op = Operation::create_operation(acc1, acc2, 200, sig, comment.to_string());
-        let verification = Operation::verify_operation(op).unwrap();
+        let verification = op.verify_operation().unwrap();
+        // let verification = Operation::verify_operation(op).unwrap();
         assert!(verification);
     }
 
@@ -74,7 +79,8 @@ mod tests {
         let sig = acc1.sign_data(comment.to_string(), 0);
 
         let op = Operation::create_operation(acc1, acc2, 220, sig, comment.to_string());
-        Operation::verify_operation(op).unwrap();
+        // Operation::verify_operation(op).unwrap();
+        op.verify_operation().unwrap();
     }
 
     #[test]
@@ -90,6 +96,6 @@ mod tests {
 
         let fake_sig = acc2.sign_data(comment.to_string(), 0);
         let op = Operation::create_operation(acc1, acc2, 0, fake_sig, comment.to_string());
-        Operation::verify_operation(op).unwrap();
+        op.verify_operation().unwrap();
     }
 }

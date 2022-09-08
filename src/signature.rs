@@ -5,7 +5,7 @@ use secp256k1::{ecdsa::Signature as SignatureType, Message, PublicKey, Secp256k1
 
 use secp256k1::hashes::sha256;
 
-#[derive(Debug)]
+#[derive(Clone, Debug, Hash, PartialEq)]
 pub struct Signature {
     pub signature: SignatureType,
 }

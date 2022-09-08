@@ -1,14 +1,14 @@
+use rand::distributions::{Alphanumeric, DistString};
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 
-use crate::operation::Operation;
-use rand::distributions::{Alphanumeric, DistString};
+use crate::Operation;
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, Hash, PartialEq)]
 pub struct Transaction {
-    tx_id: String,
-    set_of_operations: Vec<Operation>,
-    nonce: String,
+    pub tx_id: String,
+    pub set_of_operations: Vec<Operation>,
+    pub nonce: String,
 }
 
 impl Transaction {
@@ -41,7 +41,7 @@ impl Transaction {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::account::Account;
+    use crate::Account;
 
     #[test]
     fn test_hash_fn() {
@@ -62,7 +62,7 @@ mod test {
     }
 
     #[test]
-    fn test_nonde_gen() {
+    fn test_nonce_gen() {
         // let string = Alphanumeric.sample_string(&mut rand::thread_rng(), 20);
         // println!("\nhere it is {}\n", string);
         let nonce = Transaction::gen_nonce();

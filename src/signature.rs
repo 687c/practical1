@@ -1,9 +1,7 @@
 use anyhow::{Ok, Result};
-// use base64ct::{Base64, Encoding};
-use secp256k1::{ecdsa::Signature as SignatureType, Message, PublicKey, Secp256k1, SecretKey};
-// use sha2::{Digest, Sha256};
-
-use secp256k1::hashes::sha256;
+use secp256k1::{
+    ecdsa::Signature as SignatureType, hashes::sha256, Message, PublicKey, Secp256k1, SecretKey,
+};
 
 #[derive(Clone, Debug, Hash, PartialEq)]
 pub struct Signature {

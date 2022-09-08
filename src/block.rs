@@ -2,7 +2,7 @@ use anyhow::{Ok, Result};
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 
-use crate::tx::Transaction;
+use crate::Transaction;
 
 #[derive(Clone, Debug, Hash, PartialEq)]
 pub struct Block {
@@ -36,12 +36,11 @@ impl Block {
 
 #[cfg(test)]
 mod tests {
-    use std::fmt::format;
     use std::vec;
 
     use super::*;
-    use crate::operation::Operation;
     use crate::Account;
+    use crate::Operation;
 
     #[test]
     fn test_block_creation() {
@@ -55,7 +54,6 @@ mod tests {
         let tx = Transaction::create_tx(set_of_ops);
 
         let set_of_tx = vec![tx];
-        // let genesis_hash = Block::create_hash(&"00000000000000000000");
         let genesis_hash = "00000000000000000000";
 
         //test if block id is calculated properly

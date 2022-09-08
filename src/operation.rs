@@ -1,4 +1,4 @@
-use crate::{account::Account, signature::Signature};
+use crate::{Account, Signature};
 use anyhow::{Ok, Result};
 
 #[derive(Clone, Debug, Hash, PartialEq)]
@@ -6,7 +6,7 @@ pub struct Operation {
     sender: Account,
     receiver: Account,
     amount: u128,
-    pub signature: Signature,
+    signature: Signature,
     comment: String,
 }
 
